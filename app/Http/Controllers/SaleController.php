@@ -40,12 +40,7 @@ class SaleController extends Controller
      */
     public function index(Request $request)
     {
-        if(isset($request->per_page))
-            $per_page = $request->per_page;
-        else 
-            $per_page = 20;
-        
-        return $this->SaleRepository->getModel()->with('products:name,delivery_days')->paginate($per_page);
+        return $this->SaleRepository->index($request);
     }
 
     /**
@@ -56,13 +51,7 @@ class SaleController extends Controller
      */
     public function store(SaleRequest $request)
     {
-        $sale = new Sale;
-        $sale->purchase_at = Carbon::parse($request->purchase_at);
-        $sale->amount = $request->amount;
-        $sale->delivery_days = $request->delivery_days;
-        $sale->save();
-        $sale->products()->sync($request->products);
-        return Response()->json(['message'=>'Venda Concluida com sucesso!'], 201);
+        return $this->SaleRepository->save($request->all());
     }
 
     /**
@@ -73,7 +62,7 @@ class SaleController extends Controller
      */
     public function show($id)
     {
-        return $this->SaleRepository->getModel()->with('products:name,delivery_days')->find($id);
+        return $this->SaleRepository->getSale($id);
     }
 
     /**
@@ -85,13 +74,7 @@ class SaleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $sale = $this->SaleRepository->getModel()->find($id);
-        $sale->purchase_at = Carbon::parse($request->purchase_at);
-        $sale->save();
-
-        $sale->products()->sync($request->products);
-
-        return Response()->json('Venda Alterada com sucesso!', 200);
+        return $this->SaleRepository->updateSale($request, $id);
     }
 
     /**
@@ -102,9 +85,6 @@ class SaleController extends Controller
      */
     public function destroy($id)
     {
-        $sale = $this->SaleRepository->getModel()->find($id);
-        $sale->products()->detach();
-        $sale->delete();
-        return Response()->json('Venda Excluida com sucesso!', 200);
+        return $this->SaleRepository->deleteSale($id);
     }
 }
