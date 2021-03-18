@@ -35,12 +35,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        if(isset($request->product_name))
-            $query = strtoupper($request->product_name);
-        return $this->ProductRepository->getModel()->where('name','LIKE','%'.$query.'%')
-            ->orWhere('reference','LIKE','%'.$query.'%')->get();
-
-        return $this->ProductRepository->getModel()->all();
+        return $this->ProductRepository->index($request->product_name);
     }
     /**
      * Store a newly created resource in storage.
@@ -50,8 +45,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $this->ProductRepository->getModel()->create($request->all());
-        return Response()->json('Produto cadastrado!', 201);
+        return $this->ProductRepository->save($request->all());
     }
 
     /**
@@ -62,9 +56,8 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        return $this->ProductRepository->getModel()->find($id);
+        return $this->ProductRepository->getProduct($id);
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -75,14 +68,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = $this->ProductRepository->getModel()->find($id);
-        $product->name = $request->name;
-        $product->reference = $request->reference;
-        $product->price = $request->price;
-        $product->delivery_days = $request->delivery_days;
-        $product->save();
-        return Response()->json('Produto Atualizado!', 200);
-
+        return $this->ProductRepository->updateProduct($request, $id);
     }
 
     /**
@@ -93,9 +79,6 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = $this->ProductRepository->getModel()->find($id);
-        $product->delete();
-        return Response()->json('Produto Excluido!', 200);
-
+        return $this->ProductRepository->deleteProduct($id);
     }
 }
